@@ -3,28 +3,8 @@ package operation
 import (
 	"strconv"
 
-	"github.com/vipsimage/pimg"
 	"github.com/vipsimage/vips"
 )
-
-// watermark image
-func watermark(img *vips.Image, params keyValue, op baseOperation) (err error) {
-	pmg := pimg.Pimg{Image: img}
-	wmVips, err := op.Load(params.Get("img"))
-	if err != nil {
-		return
-	}
-	wm := &pimg.Pimg{Image: wmVips}
-	defer wm.Free()
-
-	option := pimg.NewWatermarkOption().
-		Direction(vips.DirectionNorthWest).
-		WatermarkRepeat().
-		WatermarkAutoScale(true)
-
-	err = pmg.Watermark(wm, option)
-	return
-}
 
 // thumbnail image
 func thumbnail(img *vips.Image, params keyValue, _ baseOperation) (err error) {

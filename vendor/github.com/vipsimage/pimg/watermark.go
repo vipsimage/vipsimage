@@ -12,6 +12,7 @@ type WatermarkOption struct {
 	wmReplicate      bool
 	wmScale          float64
 	wmAutoScale      bool
+	angle            float64
 
 	offsetX, offsetY int
 }
@@ -54,6 +55,11 @@ func (th *WatermarkOption) WatermarkAutoScale(auto bool) *WatermarkOption {
 	return th
 }
 
+func (th *WatermarkOption) Rotation(angle float64) *WatermarkOption {
+	th.angle = angle
+	return th
+}
+
 func (th *Pimg) Watermark(watermark *Pimg, op *WatermarkOption) (err error) {
 	// copy watermark
 	wm, err := watermark.Copy()
@@ -61,6 +67,13 @@ func (th *Pimg) Watermark(watermark *Pimg, op *WatermarkOption) (err error) {
 		return
 	}
 	defer wm.Free()
+
+	if op.angle != 0 {
+		err = wm.Rotate(op.angle)
+		if err != nil {
+			return
+		}
+	}
 
 	var scale float64
 	if op.wmScale <= 0 || op.wmAutoScale {

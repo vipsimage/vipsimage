@@ -7,7 +7,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.4.0
-	github.com/vipsimage/pimg v0.0.0-20191015145839-678dc17cb775
+	github.com/vipsimage/pimg v0.0.0-20191019152510-98d334045436
 	github.com/vipsimage/vips v0.0.0-20191015145541-d50abeead13f
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

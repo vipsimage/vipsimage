@@ -53,7 +53,7 @@ github.com/spf13/pflag
 github.com/spf13/viper
 # github.com/ugorji/go v1.1.4
 github.com/ugorji/go/codec
-# github.com/vipsimage/pimg v0.0.0-20191015145839-678dc17cb775
+# github.com/vipsimage/pimg v0.0.0-20191019152510-98d334045436
 github.com/vipsimage/pimg
 # github.com/vipsimage/vips v0.0.0-20191015145541-d50abeead13f
 github.com/vipsimage/vips

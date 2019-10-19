@@ -22,16 +22,9 @@ func Parse(operationRule string) (op Operation, err error) {
 			return
 		}
 
-		name := rule[0]
-		paramsStr := ""
-		params := url.Values{}
-		if len(rule) > 1 {
-			paramsStr = rule[1]
-
-			params, err = url.ParseQuery(paramsStr)
-			if err != nil {
-				return
-			}
+		name, paramsStr, params, err := parseQuery(rule)
+		if err != nil {
+			return op, errors.WithMessage(err, "parse query error")
 		}
 
 		// set image target format
@@ -45,8 +38,7 @@ func Parse(operationRule string) (op Operation, err error) {
 		if name == "store" {
 			op.baseOperation.storage, err = parseStorage(params)
 			if err != nil {
-				err = errors.WithMessage(err, "storage parse error")
-				return
+				return op, errors.WithMessage(err, "storage parse error")
 			}
 			continue
 		}
@@ -66,6 +58,20 @@ func Parse(operationRule string) (op Operation, err error) {
 			value:  paramsStr,
 			Values: params,
 		})
+	}
+
+	return
+}
+
+func parseQuery(rule []string) (name, paramsStr string, params url.Values, err error) {
+	name = rule[0]
+	if len(rule) > 1 {
+		paramsStr = rule[1]
+
+		params, err = url.ParseQuery(paramsStr)
+		if err != nil {
+			return
+		}
 	}
 
 	return
