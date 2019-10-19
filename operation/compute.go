@@ -1,12 +1,14 @@
 package operation
 
 import (
-	"crypto/md5"
+	"crypto/md5" // nolint
 	"encoding/hex"
 )
 
-type ComputeFunc func(content []byte, op baseOperation) (interface{}, error)
+// ComputeFunc compute function
+type ComputeFunc func(content []byte, params keyValue, op baseOperation) (interface{}, error)
 
+// GetComputeFunc return compute function by name.
 func GetComputeFunc(name string) (ComputeFunc, bool) {
 	switch name {
 	case "md5":
@@ -14,9 +16,11 @@ func GetComputeFunc(name string) (ComputeFunc, bool) {
 	default:
 		return nil, false
 	}
+
 }
 
-func imageMd5(content []byte, _ baseOperation) (interface{}, error) {
-	s := md5.Sum(content)
-	return hex.EncodeToString(s[:]), nil
+// imageMd5 hash image
+func imageMd5(content []byte, _ keyValue, _ baseOperation) (interface{}, error) {
+	contentMd5 := md5.Sum(content) // nolint
+	return hex.EncodeToString(contentMd5[:]), nil
 }

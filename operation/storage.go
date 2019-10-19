@@ -8,23 +8,20 @@ import (
 	"github.com/vipsimage/vipsimage/storage/local"
 )
 
-func parseStorage(rule string) (storageOption keyValue, err error) {
-	v, err := url.ParseQuery(rule)
-	if err != nil {
-		return
-	}
-
-	storageOption.key = v.Get("platform")
+// parseStorage double parse params
+func parseStorage(params url.Values) (storageOption keyValue, err error) {
+	storageOption.key = params.Get("platform")
 	if storageOption.key == "" {
 		// set default storage
 		storageOption.key = "local"
 	}
 
-	v.Del("platform")
-	storageOption.value = v.Encode()
+	params.Del("platform")
+	storageOption.Values = params
 	return
 }
 
+// GetStorageLoadFunc return load function by name.
 func GetStorageLoadFunc(name string) (StorageLoadFunc, bool) {
 	switch name {
 	case "local", "":
@@ -34,8 +31,10 @@ func GetStorageLoadFunc(name string) (StorageLoadFunc, bool) {
 	}
 }
 
-type StorageLoadFunc func(filePath string) (img *vips.Image, err error)
+// StorageLoadFunc storage setting
+type StorageLoadFunc func(filePath string, params keyValue) (img *vips.Image, err error)
 
-func localLoad(filePath string) (img *vips.Image, err error) {
+// localLoad load image from local file
+func localLoad(filePath string, _ keyValue) (img *vips.Image, err error) {
 	return local.Load(filePath)
 }

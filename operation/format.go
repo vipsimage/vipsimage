@@ -5,12 +5,14 @@ import (
 	"github.com/vipsimage/vips"
 )
 
+// ImageBuffer contain formatted image info
 type ImageBuffer struct {
 	Content     []byte
 	ContentType string
 	Size        int
 }
 
+// ImageFormat format vips.Image
 func ImageFormat(img *vips.Image, format string) (ib ImageBuffer, err error) {
 	switch format {
 	case "jpg", "jpeg":
