@@ -9,10 +9,11 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct && \
     go mod download
 
 # build libvips
-COPY data/vips-8.8.3.tar.gz .
-#RUN wget https://github.com/libvips/libvips/releases/download/v8.8.3/vips-8.8.3.tar.gz
+#COPY data/vips-8.8.3.tar.gz .
+#RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories
+
+RUN wget https://github.com/libvips/libvips/releases/download/v8.8.3/vips-8.8.3.tar.gz
 RUN tar -zxvf vips-8.8.3.tar.gz
-RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories
 RUN apk add g++ make glib-dev expat gtk-doc libjpeg-turbo-dev libpng-dev libwebp-dev giflib-dev librsvg-dev libexif-dev lcms2-dev tiff-dev libheif-dev
 RUN cd vips-8.8.3 && \
     ./configure --without-OpenEXR --enable-debug=no --disable-static --enable-silent-rules && \
@@ -31,7 +32,7 @@ WORKDIR /app/
 ENV GIN_MODE=release
 
 RUN mkdir -p /data/logs && \
-    echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories && \
+#    echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories && \
     apk --update --no-cache add fftw glib libltdl expat libjpeg-turbo libpng libwebp giflib librsvg libgsf libexif lcms2 libheif tiff
 
 COPY --from=pre-build /usr/local/lib/* /usr/local/lib/
