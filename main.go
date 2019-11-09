@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/vipsimage/vips"
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/vipsimage/vipsimage/route"
@@ -33,7 +34,7 @@ func init() {
 	viper.SetConfigType("toml")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("fatal error, config file: %s", err))
 	}
 
 	// Check log dir
@@ -79,6 +80,7 @@ func init() {
 func main() {
 	// Parse vipsimage.toml operation-rule
 	rule.Init()
+	vips.DefaultInit()
 
 	// Bind host port
 	addr := viper.GetString("vipsimage.bind")

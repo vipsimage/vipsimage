@@ -1,6 +1,8 @@
 package route
 
 import (
+	"net/http"
+	_ "net/http/pprof" // pprof
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +11,9 @@ import (
 
 // Route return vipsimage define route
 func Route() *gin.Engine {
+	go func() {
+		http.ListenAndServe("0.0.0.0:6060", nil)
+	}()
 	r := gin.Default()
 
 	if viper.GetBool("auth.without-get-image") {

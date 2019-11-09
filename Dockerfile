@@ -1,12 +1,4 @@
 FROM golang:alpine AS build-base
-WORKDIR /go/src/github.com/vipsimage
-
-COPY go.mod .
-COPY go.sum .
-
-# cache go package
-RUN go env -w GOPROXY=https://goproxy.cn,direct && \
-    go mod download
 
 # build libvips
 #COPY data/vips-8.8.3.tar.gz .
@@ -18,6 +10,15 @@ RUN apk add g++ make glib-dev expat gtk-doc libjpeg-turbo-dev libpng-dev libwebp
 RUN cd vips-8.8.3 && \
     ./configure --without-OpenEXR --enable-debug=no --disable-static --enable-silent-rules && \
     make install-strip
+
+WORKDIR /go/src/github.com/vipsimage
+
+COPY go.mod .
+COPY go.sum .
+
+# cache go package
+RUN go env -w GOPROXY=https://goproxy.cn,direct
+RUN go mod download
 
 # build vipsimage
 FROM build-base AS pre-build

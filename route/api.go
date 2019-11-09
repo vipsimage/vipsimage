@@ -171,7 +171,7 @@ func HandleImages(c *gin.Context) {
 		bad(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	defer img.Free()
+	// defer img.Free()
 
 	// image handle
 	err = op.Execute(img)

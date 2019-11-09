@@ -26,7 +26,7 @@ import (
 // angle: optional, the Angle of clockwise rotation
 func watermark(img *vips.Image, params keyValue, op baseOperation) (err error) {
 	pmg := pimg.Pimg{Image: img}
-	defer pmg.Free()
+	// defer pmg.Free()
 
 	wmPath := params.Get("img")
 	if wmPath == "" {
@@ -39,7 +39,7 @@ func watermark(img *vips.Image, params keyValue, op baseOperation) (err error) {
 		return
 	}
 	wm := &pimg.Pimg{Image: wmVips}
-	defer wm.Free()
+	// defer wm.Free()
 
 	err = pmg.Watermark(wm, createWatermarkOption(params))
 	return
