@@ -1,22 +1,31 @@
 package operation
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/vipsimage/pimg"
 	"github.com/vipsimage/vips"
 )
 
-// watermark image
+// Watermark option
+type Watermark struct {
+	Storage `json:"storage"`
+
+	Img       string  `json:"img"`
+	Direction string  `json:"direction"`
+	Repeat    bool    `json:"repeat"`
+	Scale     float64 `json:"scale"`
+	AutoScale bool    `json:"auto_scale"`
+
+	Angle   float64 `json:"angle"`
+	OffsetX int     `json:"offset_x"`
+	OffsetY int     `json:"offset_y"`
+}
+
+// Handle watermark image
 // params:
 //
-// img: required, watermark image, load by operation rule.
-//      if the image path contains slashes, you need to escape it twice.
-//      e.g. test/test/vipsimage.png => test%2Ftest%2Fvipsimage.png
-//      Golang: url.PathEscape(url.PathEscape("test/test/vipsimage.png"))
-//      Javascript: encodeURI(encodeURIComponent('test/test/vipsimage.png'))
+// img:
 //
 // direction: optional, default south-east, e,s,w,t,se etc
 // repeat: optional, default false, watermark repeat, direction usually use north-west
@@ -24,82 +33,37 @@ import (
 // auto-scale: optional, default scale to 1/7 of the target image width
 // offset-x, offset-y: optional, int, offset of watermark
 // angle: optional, the Angle of clockwise rotation
-func watermark(img *vips.Image, params keyValue, op baseOperation) (err error) {
+func (th Watermark) Handle(img *vips.Image) (err error) {
 	pmg := pimg.Pimg{Image: img}
-	// defer pmg.Free()
 
-	wmPath := params.Get("img")
-	if wmPath == "" {
-		err = fmt.Errorf("watermark image not found in this operation rule")
-		return
-	}
-
-	wmVips, err := op.Load(wmPath)
+	wmVips, err := th.Load(th.Img)
 	if err != nil {
 		return
 	}
 	wm := &pimg.Pimg{Image: wmVips}
-	// defer wm.Free()
 
-	err = pmg.Watermark(wm, createWatermarkOption(params))
-	return
-}
-
-func createWatermarkOption(params keyValue) *pimg.WatermarkOption { // nolint
 	option := pimg.NewWatermarkOption()
+	option.Direction(watermarkDirection(th.Direction))
 
-	option.Direction(watermarkDirection(params.Get("direction")))
-	// repeat
-	if params.Get("repeat") != "" {
+	if th.Repeat {
 		option.WatermarkRepeat()
 	}
 
 	// watermark scale
-	if scale := params.Get("scale"); scale != "" {
-		s, err := strconv.ParseFloat(scale, 64)
-		if err == nil && s != 0 {
-			option.WatermarkScale(s)
-		}
+	if th.Scale != 0 {
+		option.WatermarkScale(th.Scale)
 	}
 
 	// auto scale
-	if params.Get("auto-scale") != "" {
-		option.WatermarkAutoScale(true)
-	}
+	option.WatermarkAutoScale(th.AutoScale)
 
-	// rotate
-	if angle := params.Get("angle"); angle != "" {
-		s, err := strconv.ParseFloat(angle, 64)
-		if err == nil && s != 0 {
-			option.Rotation(s)
-		}
-	}
+	// rotation
+	option.Rotation(th.Angle)
 
 	// set offset
-	offsetX, offsetY, err := watermarkOffset(params)
-	if err == nil && (offsetX != 0 || offsetY != 0) {
-		option.SetOffset(offsetX, offsetY)
-	}
+	option.SetOffset(th.OffsetX, th.OffsetY)
 
-	return option
-}
-
-func watermarkOffset(params keyValue) (offsetX, offsetY int, err error) {
-	if ox := params.Get("offset-x"); ox != "" {
-		offsetX, err = strconv.Atoi(ox)
-		if err != nil {
-			return
-		}
-	}
-
-	if oy := params.Get("offset-y"); oy != "" {
-		offsetY, err = strconv.Atoi(oy)
-		if err != nil {
-			return
-		}
-	}
-
-	return
+	return pmg.Watermark(wm, option)
 }
 
 // watermarkDirection parse watermark direction

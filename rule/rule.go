@@ -15,10 +15,10 @@ import (
 )
 
 // Version vipsimage
-const Version = "1.0.0"
+const Version = "1.0.1"
 
 var (
-	short       = make(map[string]operation.Operation)
+	short       = make(map[string]operation.Rule)
 	disableSave = true
 	mu          sync.RWMutex
 )
@@ -49,12 +49,12 @@ func Init() {
 }
 
 // GetAll return all parsed operation
-func GetAll() map[string]operation.Operation {
+func GetAll() map[string]operation.Rule {
 	return short
 }
 
 // Get operation by alias
-func Get(alias string) (op operation.Operation, ok bool) {
+func Get(alias string) (op operation.Rule, ok bool) {
 	mu.RLock()
 	op, ok = short[alias]
 	mu.RUnlock()

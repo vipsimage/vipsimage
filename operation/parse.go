@@ -1,77 +1,39 @@
 package operation
 
 import (
-	"fmt"
-	"net/url"
+	"encoding/json"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/go-playground/validator/v10"
 )
 
-// Parse operation rule
-func Parse(operationRule string) (op Operation, err error) {
-	op.baseOperation.rule = operationRule
+var validate *validator.Validate
 
-	operationRule = strings.Trim(operationRule, ";")
-	rules := strings.Split(operationRule, ";")
-
-	for _, v := range rules {
-		rule := strings.Split(v, ":")
-		if len(rule) == 0 || len(rule) > 2 {
-			err = fmt.Errorf("incorrect number of parameters, rule: %s", v)
-			return
-		}
-
-		name, paramsStr, params, err := parseQuery(rule)
-		if err != nil {
-			return op, errors.WithMessage(err, "parse query error")
-		}
-
-		// set image target format
-		if name == "format" || name == "f" {
-			op.baseOperation.format = paramsStr
-
-			continue
-		}
-
-		// set store setting
-		if name == "store" {
-			op.baseOperation.storage, err = parseStorage(params)
-			if err != nil {
-				return op, errors.WithMessage(err, "storage parse error")
-			}
-			continue
-		}
-
-		if strings.HasPrefix(name, "compute-") {
-			op.computeFunc = append(op.computeFunc, keyValue{
-				key:    strings.ToLower(strings.TrimPrefix(name, "compute-")),
-				value:  paramsStr,
-				Values: params,
-			})
-			continue
-		}
-
-		// default append to image handler
-		op.handlerFunc = append(op.handlerFunc, keyValue{
-			key:    name,
-			value:  paramsStr,
-			Values: params,
-		})
-	}
-
-	return
+func init() {
+	validate = validator.New()
 }
 
-func parseQuery(rule []string) (name, paramsStr string, params url.Values, err error) {
-	name = rule[0]
-	if len(rule) > 1 {
-		paramsStr = rule[1]
+// Rule is operation rule describe
+type Rule struct {
+	Storage    `json:"storage,omitempty"`
+	*Format    `json:"format,omitempty"`
+	*Operation `json:"operation,omitempty"`
+	*Computed  `json:"computed,omitempty"`
+}
 
-		params, err = url.ParseQuery(paramsStr)
-		if err != nil {
-			return
-		}
+// Parse operation rule
+func Parse(rule string) (r Rule, err error) {
+	decode := json.NewDecoder(strings.NewReader(rule))
+	decode.UseNumber()
+
+	err = decode.Decode(&r)
+	if err != nil {
+		return
+	}
+
+	err = validate.Struct(r)
+	if err != nil {
+		return
 	}
 
 	return

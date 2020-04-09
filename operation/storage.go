@@ -1,40 +1,25 @@
 package operation
 
 import (
-	"net/url"
-
 	"github.com/vipsimage/vips"
 
 	"github.com/vipsimage/vipsimage/storage/local"
 )
 
-// parseStorage double parse params
-func parseStorage(params url.Values) (storageOption keyValue, err error) {
-	storageOption.key = params.Get("platform")
-	if storageOption.key == "" {
-		// set default storage
-		storageOption.key = "local"
-	}
-
-	params.Del("platform")
-	storageOption.Values = params
-	return
+// StorageLoader is storage interface
+type StorageLoader interface {
+	Load(filePath string) (img *vips.Image, err error)
 }
 
-// GetStorageLoadFunc return load function by name.
-func GetStorageLoadFunc(name string) (StorageLoadFunc, bool) {
-	switch name {
-	case "local", "":
-		return localLoad, true
-	default:
-		return nil, false
-	}
+// Storage option
+type Storage struct {
 }
 
-// StorageLoadFunc storage setting
-type StorageLoadFunc func(filePath string, params keyValue) (img *vips.Image, err error)
+func (th Storage) Load(filePath string) (img *vips.Image, err error) {
+	return Load(filePath)
+}
 
-// localLoad load image from local file
-func localLoad(filePath string, _ keyValue) (img *vips.Image, err error) {
+// Load local image
+func Load(filePath string) (img *vips.Image, err error) {
 	return local.Load(filePath)
 }

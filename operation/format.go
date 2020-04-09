@@ -5,6 +5,11 @@ import (
 	"github.com/vipsimage/vips"
 )
 
+// Format option
+type Format struct {
+	Target string `json:"target" validate:"required,eq=jpg|eq=jpeg|eq=webp|eq=png|eq=tif|eq=tiff|eq=heif"`
+}
+
 // ImageBuffer contain formatted image info
 type ImageBuffer struct {
 	Content     []byte
@@ -12,9 +17,9 @@ type ImageBuffer struct {
 	Size        int
 }
 
-// ImageFormat format vips.Image
-func ImageFormat(img *vips.Image, format string) (ib ImageBuffer, err error) {
-	switch format {
+// FormatImage format vips.Image
+func (th Format) FormatImage(img *vips.Image) (ib ImageBuffer, err error) {
+	switch th.Target {
 	case "jpg", "jpeg":
 		ib.ContentType = "image/jpeg"
 		ib.Content, ib.Size, err = img.JPEGSaveBuffer()
@@ -31,7 +36,7 @@ func ImageFormat(img *vips.Image, format string) (ib ImageBuffer, err error) {
 		ib.ContentType = "image/heif"
 		ib.Content, ib.Size, err = img.HEIFSaveBuffer()
 	default:
-		logrus.WithField("format", format).Warnln("format not found, use default format jpeg")
+		logrus.WithField("format", th.Target).Warnln("format not found, use default format jpeg")
 
 		ib.ContentType = "image/jpeg"
 		ib.Content, ib.Size, err = img.JPEGSaveBuffer()

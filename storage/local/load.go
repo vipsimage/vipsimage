@@ -2,6 +2,7 @@ package local
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -23,8 +24,13 @@ func FullPath(filePath string) string {
 	return fmt.Sprintf("%s/images%s", dataDir, filePath)
 }
 
-func Load(filePath string) (*vips.Image, error) {
+func Load(filePath string) (img *vips.Image, err error) {
 	fp := FullPath(filePath)
+
+	_, err = os.Stat(fp)
+	if err != nil {
+		return
+	}
 
 	return vips.NewFromFile(fp)
 }

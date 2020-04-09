@@ -1,6 +1,7 @@
 package route
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof" // pprof
 	"strings"
@@ -12,20 +13,23 @@ import (
 // Route return vipsimage define route
 func Route() *gin.Engine {
 	go func() {
+		fmt.Println("bind pprof on :6060")
 		http.ListenAndServe("0.0.0.0:6060", nil)
 	}()
 	r := gin.Default()
 
 	if viper.GetBool("auth.without-get-image") {
+		r.Handle("VIEW", "*original-path", patchRule)
 		r.GET("/:operation-rule/*original-path", HandleImages).Use(authMiddleWare())
 	} else {
 		r.Use(authMiddleWare()).GET("/:operation-rule/*original-path", HandleImages)
+		r.Handle("VIEW", "*original-path", patchRule)
 	}
 
 	r.PUT("operation-rule", addRule)
 	r.DELETE("operation-rule", delRule)
 	r.POST("operation-rule", updateRule)
-	r.POST("operation-rule-parse", parseRule)
+	r.POST("parse-rule", parseRule)
 	r.NoRoute(defaultHandle)
 
 	return r

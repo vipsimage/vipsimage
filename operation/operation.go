@@ -1,91 +1,97 @@
 package operation
 
 import (
-	"fmt"
-	"net/url"
+	"reflect"
 
-	"github.com/sirupsen/logrus"
 	"github.com/vipsimage/vips"
 )
 
-type baseOperation struct {
-	rule    string   // operation rule
-	storage keyValue // storage option
-	format  string   // target format
-}
-
-// FormatImage format image
-func (th baseOperation) FormatImage(img *vips.Image) (ib ImageBuffer, err error) {
-	return ImageFormat(img, th.format)
-}
-
-func (th baseOperation) Load(filePath string) (img *vips.Image, err error) {
-	fn, ok := GetStorageLoadFunc(th.storage.key)
-	if !ok {
-		err = fmt.Errorf("storage load functin not found. name: %s", th.storage.key)
-		return
-	}
-
-	return fn(filePath, th.storage)
-}
-
-type keyValue struct {
-	url.Values
-
-	key   string
-	value string
-}
-
-// Operation rule
+// Operation operation
 type Operation struct {
-	baseOperation
-
-	handlerFunc []keyValue // image handler
-	computeFunc []keyValue // image computed
+	*Thumbnail `json:"thumbnail,omitempty"`
+	*Resize    `json:"resize,omitempty"`
+	*Crop      `json:"crop,omitempty"`
+	*SmartCrop `json:"smart-crop,omitempty"`
+	*Watermark `json:"watermark,omitempty"`
+	*Rotate    `json:"rotate,omitempty"`
 }
 
 // Execute image process
 func (th Operation) Execute(img *vips.Image) (err error) {
-	for _, params := range th.handlerFunc {
-		fn, ok := GetHandler(params.key)
-		if !ok {
-			return fmt.Errorf("handler function: %s, not found", params.key)
-		}
+	v := reflect.ValueOf(th)
 
-		err = fn(img, params, th.baseOperation)
-		if err != nil {
-			logrus.Errorln(err.Error())
-			continue
+	for i := 0; i < v.NumField(); i++ {
+		filed := v.Field(i)
+		if !filed.IsZero() {
+			err = filed.Interface().(Handler).Handle(img)
+			if err != nil {
+				return
+			}
 		}
 	}
-
 	return
 }
 
-// Compute content use compute func
-func (th Operation) Compute(content []byte) (res map[string]interface{}, err error) {
-	res = make(map[string]interface{})
+// Handlers is handle function interface
+type Handler interface {
+	Handle(img *vips.Image) (err error)
+}
 
-	for _, ic := range th.computeFunc {
-		fn, ok := GetComputeFunc(ic.key)
-		if !ok {
-			err = fmt.Errorf("compute function: %s, not found", ic.key)
-			return
-		}
+// Thumbnail handle option
+type Thumbnail struct {
+	Width int `json:"width,omitempty"`
+}
 
-		result, err := fn(content, ic, th.baseOperation)
-		if err != nil {
-			logrus.Errorln(err.Error())
-			continue
-		}
-
-		res[ic.key] = result
-	}
-
+// Handle image thumbnail
+func (th Thumbnail) Handle(img *vips.Image) (err error) {
+	err = img.ThumbnailImage(th.Width)
 	return
 }
 
-// HasCompute return true if operation has compute function
-func (th Operation) HasCompute() bool {
-	return len(th.computeFunc) != 0
+// Resize option
+type Resize struct {
+	Scale float64 `json:"scale,omitempty"`
+}
+
+// Handle resize image
+func (th Resize) Handle(img *vips.Image) (err error) {
+	err = img.Resize(th.Scale)
+	return
+}
+
+// Crop option
+type Crop struct {
+	Left   int `json:"left"`
+	Top    int `json:"top"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+// Handle crop image
+func (th Crop) Handle(img *vips.Image) (err error) {
+	err = img.Crop(th.Left, th.Top, th.Width, th.Height)
+	return
+}
+
+// SmartCrop option
+type SmartCrop struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+// Handle smart crop image
+func (th SmartCrop) Handle(img *vips.Image) (err error) {
+	err = img.SmartCrop(th.Width, th.Height)
+	return
+}
+
+// rotate image option
+type Rotate struct {
+	Angle float64 `json:"angle,omitempty"`
+}
+
+// Handle rotate image
+func (th Rotate) Handle(img *vips.Image) (err error) {
+	err = img.Rotate(th.Angle)
+	return
 }

@@ -1,7 +1,9 @@
 package route
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -117,30 +119,46 @@ func defaultHandle(c *gin.Context) {
 	HandleImages(c)
 }
 
-type parseRuleReq struct {
-	Rule string `json:"rule"`
-}
-
-// parseRule is POST: operation-rule-parse API, return a parsed operation rule.
+// parseRule is POST: parse-rule API, return a parsed operation rule.
 func parseRule(c *gin.Context) {
-	var prr parseRuleReq
-	err := c.ShouldBindJSON(&prr)
+	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		bad(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	op, err := operation.Parse(prr.Rule)
+	op, err := operation.Parse(string(b))
 	if err != nil {
 		bad(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  "ok",
-		"data": op,
+		"code":   http.StatusOK,
+		"msg":    "ok",
+		"data":   op,
+		"encode": base64.StdEncoding.EncodeToString(b),
 	})
+}
+
+// patchRule test HandleImages
+func patchRule(c *gin.Context) {
+	b, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		bad(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// handle image
+	c.Params = append(c.Params, gin.Param{
+		Key:   "operation-rule",
+		Value: base64.StdEncoding.EncodeToString(b),
+	}, gin.Param{
+		Key:   "original-path",
+		Value: c.Request.URL.Path,
+	})
+
+	HandleImages(c)
 }
 
 // HandleImages process images according to operation rule.
@@ -148,7 +166,13 @@ func HandleImages(c *gin.Context) {
 	operationRule := c.Param("operation-rule")
 	originalPath := c.Param("original-path")
 
-	var err error
+	b, err := base64.StdEncoding.DecodeString(operationRule)
+	if err != nil {
+		bad(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	operationRule = string(b)
+
 	op, ok := rule.Get(operationRule)
 	if !ok {
 		// enable full rule
@@ -166,12 +190,12 @@ func HandleImages(c *gin.Context) {
 	}
 
 	// use storage config, load image
-	img, err := op.Load(originalPath)
+	img, err := op.Storage.Load(originalPath)
 	if err != nil {
 		bad(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	// defer img.Free()
+	defer img.Free()
 
 	// image handle
 	err = op.Execute(img)

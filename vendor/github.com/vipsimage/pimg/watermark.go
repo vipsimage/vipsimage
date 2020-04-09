@@ -66,7 +66,7 @@ func (th *Pimg) Watermark(watermark *Pimg, op *WatermarkOption) (err error) {
 	if err != nil {
 		return
 	}
-	// defer wm.Free()
+	defer wm.Free()
 
 	if op.angle != 0 {
 		err = wm.Rotate(op.angle)
