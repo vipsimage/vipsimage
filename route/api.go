@@ -166,13 +166,7 @@ func HandleImages(c *gin.Context) {
 	operationRule := c.Param("operation-rule")
 	originalPath := c.Param("original-path")
 
-	b, err := base64.StdEncoding.DecodeString(operationRule)
-	if err != nil {
-		bad(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	operationRule = string(b)
-
+	var err error
 	op, ok := rule.Get(operationRule)
 	if !ok {
 		// enable full rule

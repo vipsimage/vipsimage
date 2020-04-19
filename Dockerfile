@@ -43,5 +43,6 @@ COPY data/vipsimage.reference.toml data/vipsimage.toml /data/
 
 EXPOSE 8910
 
+# release memory model
 ENV GODEBUG="madvdontneed=1"
 CMD ["/app/vipsimage"]

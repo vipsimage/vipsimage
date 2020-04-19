@@ -1,6 +1,7 @@
 package operation
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"strings"
 
@@ -23,6 +24,11 @@ type Rule struct {
 
 // Parse operation rule
 func Parse(rule string) (r Rule, err error) {
+	b, err := base64.StdEncoding.DecodeString(rule)
+	if err == nil {
+		rule = string(b)
+	} // skip decode error, maybe json
+
 	decode := json.NewDecoder(strings.NewReader(rule))
 	decode.UseNumber()
 
