@@ -1,13 +1,14 @@
 FROM golang:alpine AS build-base
 
+ENV VIPS_VERSION=8.9.1
 # build libvips
-#COPY data/vips-8.9.1.tar.gz .
+#COPY data/vips-${VIPS_VERSION}.tar.gz .
 #RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories
 
-RUN wget https://github.com/libvips/libvips/releases/download/v8.9.1/vips-8.9.1.tar.gz
-RUN tar -zxvf vips-8.9.1.tar.gz
+RUN wget https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.gz
+RUN tar -zxvf vips-${VIPS_VERSION}.tar.gz
 RUN apk add g++ make glib-dev expat gtk-doc libjpeg-turbo-dev libpng-dev libwebp-dev giflib-dev librsvg-dev libexif-dev lcms2-dev tiff-dev libheif-dev
-RUN cd vips-8.9.1 && \
+RUN cd vips-${VIPS_VERSION} && \
     ./configure --without-OpenEXR --enable-debug=no --disable-static --enable-silent-rules && \
     make install-strip
 
