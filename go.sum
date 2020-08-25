@@ -131,6 +131,8 @@ github.com/vipsimage/vips v0.0.0-20191009073001-46e6854934d6 h1:OTqyfOt20sD1zZRl
 github.com/vipsimage/vips v0.0.0-20191009073001-46e6854934d6/go.mod h1:YMQVLPhGeW2ZLqFV4eXkyg9eMX9NmizNB3lnFMD7Frw=
 github.com/vipsimage/vips v0.0.0-20191024140111-6ea28ece988a h1:Y5jkn5GB87hR2nJVNwJGFJkz6XBC6yq+15GDXTRtkb4=
 github.com/vipsimage/vips v0.0.0-20191024140111-6ea28ece988a/go.mod h1:YMQVLPhGeW2ZLqFV4eXkyg9eMX9NmizNB3lnFMD7Frw=
+github.com/vipsimage/vips v0.0.0-20200825084237-6ecac81da275 h1:kZiLAvBK9UWLpq7IM30VmqyARx7ESB/hXUK2gty3LtE=
+github.com/vipsimage/vips v0.0.0-20200825084237-6ecac81da275/go.mod h1:YMQVLPhGeW2ZLqFV4eXkyg9eMX9NmizNB3lnFMD7Frw=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

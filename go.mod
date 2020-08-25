@@ -10,7 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.4.0
 	github.com/vipsimage/pimg v0.0.0-20191019152510-98d334045436
-	github.com/vipsimage/vips v0.0.0-20191024140111-6ea28ece988a
+	github.com/vipsimage/vips v0.0.0-20200825084237-6ecac81da275
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

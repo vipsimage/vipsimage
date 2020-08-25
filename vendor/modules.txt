@@ -71,7 +71,7 @@ github.com/ugorji/go/codec
 # github.com/vipsimage/pimg v0.0.0-20191019152510-98d334045436
 ## explicit
 github.com/vipsimage/pimg
-# github.com/vipsimage/vips v0.0.0-20191024140111-6ea28ece988a
+# github.com/vipsimage/vips v0.0.0-20200825084237-6ecac81da275
 ## explicit
 github.com/vipsimage/vips
 # golang.org/x/sys v0.0.0-20190422165155-953cdadca894
