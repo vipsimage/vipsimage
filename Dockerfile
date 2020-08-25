@@ -1,6 +1,6 @@
 FROM golang:alpine AS build-base
 
-ENV VIPS_VERSION=8.9.1
+ENV VIPS_VERSION=8.10.0
 # build libvips
 #COPY data/vips-${VIPS_VERSION}.tar.gz .
 #RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories
